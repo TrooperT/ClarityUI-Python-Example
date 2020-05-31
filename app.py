@@ -1,7 +1,18 @@
+#!/usr/bin/env python3
+
+# @Author: sam
+# @Date:   2020-05-31T17:39:09-04:00
+# @Last modified by:   sam
+# @Last modified time: 2020-05-31T19:06:03-04:00
+
+
+
 from flask import Flask, render_template, redirect, request, url_for, jsonify, session
 from flask_assets import Bundle, Environment
 import requests
 from base64 import b64encode
+
+ssl = False
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
@@ -13,9 +24,10 @@ env.register('js_all', js)
 css = Bundle('css/clarity-ui.min.css', 'css/clarity-icons.min.css')
 env.register('css_all', css)
 
+
 @app.route('/', methods=["GET", "POST"])
 def homepage():
-    if request.method == "POST": 
+    if request.method == "POST":
         attempted_username = request.form['username']
         print(attempted_username)
         attempted_password = request.form['password']
@@ -30,24 +42,29 @@ def homepage():
             session['wrong_pass'] = True
     return render_template('index.html')
 
+
 @app.route('/vms')
 def vmlist():
     req = requests.get('https://pyva.humblelab.com/rest/vcenter/vms')
     req_json = req.json()
-    return render_template('vms.html', vms = req_json)
+    return render_template('vms.html', vms=req_json)
+
 
 @app.route('/workflows')
 def workflows():
     url = 'https://hlcloud.humblelab.com'
     value = b64encode(b"username:password").decode("ascii")
     headers = {
-        'Authorization': 'Basic '+ value,
+        'Authorization': 'Basic ' + value,
         'content-type': 'application/json',
-        'accept' : 'application/json' 
+        'accept': 'application/json'
     }
     req = requests.get('{}/vco/api/workflows/'.format(url), verify=False, headers=headers)
     return render_template('workflows.html', flows=req.json()['link'])
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    if ssl:
+        app.run(debug=True, port=5443, ssl_context='adhoc')
+    else:
+        app.run(debug=True)
