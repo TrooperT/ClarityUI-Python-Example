@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-# @Author: sam
-# @Date:   2020-05-31T17:39:09-04:00
-# @Last modified by:   sam
-# @Last modified time: 2020-05-31T19:06:03-04:00
-
-
-
 from flask import Flask, render_template, redirect, request, url_for, jsonify, session
 from flask_assets import Bundle, Environment
 import requests
